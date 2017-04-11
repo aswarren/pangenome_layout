@@ -233,16 +233,22 @@ public class ImportExport {
 		thirdlayout.setGraphModel(graphModel);
 		thirdlayout.resetPropertiesValues();
 		thirdlayout.setRelativeStrength(.90f);
+		thirdlayout.setOptimalDistance(200f);
+		thirdlayout.setInitialStep(20.0f);
+		thirdlayout.setStepRatio(0.95f);
+		thirdlayout.setQuadTreeMaxLevel(10);
+		thirdlayout.setBarnesHutTheta(1.2f);
+		
 		
 		AutoLayout autolayout1 = new AutoLayout(30, TimeUnit.SECONDS);
 		autolayout1.setGraphModel(graphModel);
 		autolayout1.addLayout(firstlayout, 1f);
 		
 		
-		AutoLayout autolayout2 = new AutoLayout(35, TimeUnit.SECONDS);
+		AutoLayout autolayout2 = new AutoLayout(40, TimeUnit.SECONDS);
 		autolayout2.setGraphModel(graphModel);
-		autolayout2.addLayout(secondlayout, .9f);
-		autolayout2.addLayout(thirdlayout, .1f);
+		autolayout2.addLayout(secondlayout, .8f);
+		autolayout2.addLayout(thirdlayout, .2f);
 		autolayout1.execute();
 		autolayout2.execute();
 		secondlayout.endAlgo();

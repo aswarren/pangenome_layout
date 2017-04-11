@@ -18,7 +18,7 @@ import org.gephi.io.exporter.api.ExportController;
 //import org.gephi.io.exporter.spi.GraphExporter;
 import org.gephi.io.importer.api.Container;
 import org.gephi.io.importer.api.ContainerLoader;
-import org.gephi.io.importer.api.EdgeDefault;
+//import org.gephi.io.importer.api.EdgeDefault;
 import org.gephi.io.importer.api.ImportController;
 import org.gephi.io.processor.plugin.DefaultProcessor;
 //import org.gephi.layout.plugin.force.StepDisplacement;
@@ -27,17 +27,24 @@ import org.gephi.layout.plugin.AutoLayout;
 //import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder;
-import org.gephi.layout.plugin.multilevel.MaximalMatchingCoarsening;
-import org.gephi.layout.plugin.multilevel.MultiLevelLayout;
+import org.gephi.layout.plugin.openord.OpenOrdLayout;
+import org.gephi.layout.plugin.openord.OpenOrdLayoutBuilder;
+import org.gephi.layout.plugin.force.yifanHu.YifanHuProportional;
+import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
 
-import org.gephi.layout.plugin.multilevel.MultiLevelLayout;
-import org.gephi.layout.plugin.multilevel.YifanHuMultiLevel;
+//import org.gephi.layout.plugin.multilevel.MaximalMatchingCoarsening;
+//import org.gephi.layout.plugin.multilevel.MultiLevelLayout;
+
+//import org.gephi.layout.plugin.multilevel.MultiLevelLayout;
+//import org.gephi.layout.plugin.multilevel.YifanHuMultiLevel;
 import org.gephi.layout.spi.Layout;
 import org.gephi.layout.spi.LayoutProperty;
 //import org.gephi.layout.spi.LayoutBuilder;
 import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
+
+//import pangenome.MultiSpecial;
 
 //import com.itextpdf.text.PageSize;
 
@@ -73,9 +80,9 @@ public class ImportExport {
 			}
 			ContainerLoader loader = container.getLoader();
 
-			loader.setEdgeDefault(EdgeDefault.UNDIRECTED); // Force DIRECTED
+			//loader.setEdgeDefault(EdgeDefault.UNDIRECTED); // Force DIRECTED
 
-			container.setAllowAutoNode(true); // Don't create missing nodes
+			//container.setAllowAutoNode(true); // Don't create missing nodes
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -88,7 +95,7 @@ public class ImportExport {
 
 		// Get graph model of current workspace
 		GraphModel graphModel = Lookup.getDefault()
-				.lookup(GraphController.class).getModel();
+				.lookup(GraphController.class).getGraphModel();
 
 		//run YifanMultiLevel and ForceAtlas2
 		panacondaLayout(graphModel);
@@ -161,16 +168,35 @@ public class ImportExport {
 	**/
 	public void panacondaLayout(GraphModel graphModel) {
 		
-		YifanHuMultiLevel yfumulti=new YifanHuMultiLevel();
+		//YifanHuMultiLevel yfumulti=new YifanHuMultiLevel();
 		//Layout firstlayout = yfumulti.buildLayout();
 		
 		
-		//MultiLevelLayout yfumulti = new MultiLevelLayout();
-		MaximalMatchingCoarsening coarsening=new MaximalMatchingCoarsening();
-		MultiSpecial firstlayout=new MultiSpecial(yfumulti, coarsening);
+		OpenOrdLayout firstlayout = new OpenOrdLayout(null);
 		firstlayout.setGraphModel(graphModel);
 		firstlayout.resetPropertiesValues();
-		firstlayout.setGraphModel(graphModel);
+		firstlayout.setLiquidStage(25);
+		firstlayout.setExpansionStage(25);
+		firstlayout.setCooldownStage(25);
+		firstlayout.setCrunchStage(10);
+		firstlayout.setSimmerStage(15);
+		firstlayout.setEdgeCut(0.8f);
+		firstlayout.setNumThreads(7);
+		firstlayout.setNumIterations(750);
+		firstlayout.setRealTime(0.2f);
+		firstlayout.setRandSeed(4354541170290400326l);
+		
+		
+		//firstlayout.initAlgo();
+		//firstlayout.goAlgo();
+		//firstlayout.endAlgo();
+		
+		//MultiLevelLayout yfumulti = new MultiLevelLayout();
+		//MaximalMatchingCoarsening coarsening=new MaximalMatchingCoarsening();
+		//MultiSpecial firstlayout=new MultiSpecial(yfumulti, coarsening);
+		//firstlayout.setGraphModel(graphModel);
+		//firstlayout.resetPropertiesValues();
+		//firstlayout.setGraphModel(graphModel);
 		//firstlayout.setQuadTreeMaxLevel(20);
 		//firstlayout.setBarnesHutTheta(1.2f);
 		//firstlayout.setMinSize(3);
@@ -178,30 +204,49 @@ public class ImportExport {
 		//firstlayout.setStepRatio(0.97f);
 		//firstlayout.setOptimalDistance(100f);
 		//LayoutProperty stuff[] = firstlayout.getProperties();
-		firstlayout.initAlgo();
-		firstlayout.goAlgo();
-		firstlayout.endAlgo();
+		//firstlayout.initAlgo();
+		//int c = 1;
+		//while (c <= 20) {
+		//	firstlayout.goAlgo();
+		//	firstlayout.endAlgo();
+		//	c++;
+		//}
 		
 		
-		/*ForceAtlas2 secondlayout= new ForceAtlas2(null);
-		secondlayout.setThreadsCount(4);
+		ForceAtlas2 secondlayout= new ForceAtlas2(null);
+		
 		//unknown how to prevent overlap
+		secondlayout.setGraphModel(graphModel);
 		secondlayout.resetPropertiesValues();
-		secondlayout.setEdgeWeightInfluence(1.0);
+		secondlayout.setThreadsCount(7);
+		secondlayout.setEdgeWeightInfluence(1.2);
 		secondlayout.setScalingRatio(2.0);
 		secondlayout.setGravity(1.0);
+		
 		//unknown how to set tolerance
 		secondlayout.setBarnesHutOptimize(true);
 		secondlayout.setBarnesHutTheta(1.2);
-		AutoLayout autolayout = new AutoLayout(5, TimeUnit.SECONDS);
-		autolayout.setGraphModel(graphModel);
-		//autolayout.addLayout(firstlayout, 0.66f);
-		autolayout.addLayout(secondlayout, 1.0f);
-		autolayout.execute();
-		secondlayout.endAlgo();*/
+		secondlayout.setJitterTolerance(1d);
+		
+		YifanHuProportional layout3builder = new YifanHuProportional();
+		YifanHuLayout thirdlayout = layout3builder.buildLayout();
+		thirdlayout.setGraphModel(graphModel);
+		thirdlayout.resetPropertiesValues();
+		thirdlayout.setRelativeStrength(.90f);
+		
+		AutoLayout autolayout1 = new AutoLayout(30, TimeUnit.SECONDS);
+		autolayout1.setGraphModel(graphModel);
+		autolayout1.addLayout(firstlayout, 1f);
 		
 		
-		
+		AutoLayout autolayout2 = new AutoLayout(35, TimeUnit.SECONDS);
+		autolayout2.setGraphModel(graphModel);
+		autolayout2.addLayout(secondlayout, .9f);
+		autolayout2.addLayout(thirdlayout, .1f);
+		autolayout1.execute();
+		autolayout2.execute();
+		secondlayout.endAlgo();
+		thirdlayout.endAlgo();
 	
 		
 		/*if (firstlayout.canAlgo()) {

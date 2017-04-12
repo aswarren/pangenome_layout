@@ -174,7 +174,7 @@ public class ImportExport {
 		firstlayout.setQuadTreeMaxLevel(20);
 		firstlayout.setBarnesHutTheta(1.2f);
 		firstlayout.setMinSize(3);
-		firstlayout.setMinCoarseningRate(0.99d);
+		firstlayout.setMinCoarseningRate(0.75d);
 		firstlayout.setStepRatio(0.97f);
 		firstlayout.setOptimalDistance(100f);
 		LayoutProperty stuff[] = firstlayout.getProperties();
@@ -183,22 +183,45 @@ public class ImportExport {
 		//firstlayout.endAlgo();
 		
 		
-		/*ForceAtlas2 secondlayout= new ForceAtlas2(null);
-		secondlayout.setThreadsCount(4);
-		//unknown how to prevent overlap
+		ForceAtlas2 secondlayout= new ForceAtlas2(null);
+		secondlayout.setGraphModel(graphModel);
 		secondlayout.resetPropertiesValues();
+		secondlayout.setThreadsCount(4);
 		secondlayout.setEdgeWeightInfluence(1.0);
 		secondlayout.setScalingRatio(2.0);
 		secondlayout.setGravity(1.0);
-		//unknown how to set tolerance
+		secondlayout.setJitterTolerance(1d);
 		secondlayout.setBarnesHutOptimize(true);
-		secondlayout.setBarnesHutTheta(1.2);*/
+		secondlayout.setBarnesHutTheta(1.2);
+		
+		ForceAtlas2 thirdlayout= new ForceAtlas2(null);
+		thirdlayout.setGraphModel(graphModel);
+		thirdlayout.resetPropertiesValues();
+		//prevent overlap
+		thirdlayout.setAdjustSizes(true);
+		thirdlayout.setThreadsCount(4);
+		thirdlayout.setEdgeWeightInfluence(1.0);
+		thirdlayout.setScalingRatio(2.0);
+		thirdlayout.setGravity(1.0);
+		thirdlayout.setJitterTolerance(1d);
+		thirdlayout.setBarnesHutOptimize(false);
+		thirdlayout.setBarnesHutTheta(1.2);
+		
+		
 		AutoLayout autolayout = new AutoLayout(30, TimeUnit.SECONDS);
 		autolayout.setGraphModel(graphModel);
 		autolayout.addLayout(firstlayout, 1f);
 		//autolayout.addLayout(secondlayout, 1.0f);
 		autolayout.execute();
 		firstlayout.endAlgo();
+		
+		AutoLayout autolayout2 = new AutoLayout(10, TimeUnit.SECONDS);
+		autolayout2.setGraphModel(graphModel);
+		autolayout2.addLayout(secondlayout, 0.6f);
+		autolayout2.addLayout(thirdlayout, 0.4f);
+		autolayout2.execute();
+		secondlayout.endAlgo();
+		thirdlayout.endAlgo();
 		
 		
 		

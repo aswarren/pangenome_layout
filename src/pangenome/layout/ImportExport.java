@@ -215,14 +215,18 @@ public class ImportExport {
 		autolayout.execute();
 		firstlayout.endAlgo();
 		
-		AutoLayout autolayout2 = new AutoLayout(10, TimeUnit.SECONDS);
+		AutoLayout autolayout2 = new AutoLayout(6, TimeUnit.SECONDS);
 		autolayout2.setGraphModel(graphModel);
-		autolayout2.addLayout(secondlayout, 0.6f);
-		autolayout2.addLayout(thirdlayout, 0.4f);
+		autolayout2.addLayout(secondlayout, 1f);
 		autolayout2.execute();
 		secondlayout.endAlgo();
-		thirdlayout.endAlgo();
 		
+		
+		AutoLayout autolayout3 = new AutoLayout(4, TimeUnit.SECONDS);
+		autolayout3.setGraphModel(graphModel);
+		autolayout3.addLayout(thirdlayout, 1f);
+		autolayout3.execute();
+		thirdlayout.endAlgo();
 		
 		
 	

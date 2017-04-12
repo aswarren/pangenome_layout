@@ -89,17 +89,17 @@ public class MultiSpecial extends AbstractLayout implements Layout {
         this.graph = newGraph;
         if (layout.canAlgo()) {
             layout.goAlgo();
+        } else {
+            layout.endAlgo();
             if (level > 0) {
                 coarseningStrategy.refine(graph);
                 level--;
+
                 initYifanHu();
-                this.goAlgo();
             } else {
                 setConverged(true);
                 layout = null;
             }
-        } else {
-            layout.endAlgo();
         }
     }
 

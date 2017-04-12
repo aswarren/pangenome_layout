@@ -23,13 +23,13 @@ import org.gephi.io.importer.api.ImportController;
 import org.gephi.io.processor.plugin.DefaultProcessor;
 //import org.gephi.layout.plugin.force.StepDisplacement;
 import org.gephi.layout.plugin.AutoLayout;
-//import org.gephi.layout.plugin.force.yifanHu.YifanHu;
-//import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
+import org.gephi.layout.plugin.force.yifanHu.YifanHu;
+import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder;
 import org.gephi.layout.plugin.multilevel.MaximalMatchingCoarsening;
 import org.gephi.layout.plugin.multilevel.MultiLevelLayout;
-
+import pangenome.MultiSpecial;
 import org.gephi.layout.plugin.multilevel.MultiLevelLayout;
 import org.gephi.layout.plugin.multilevel.YifanHuMultiLevel;
 import org.gephi.layout.spi.Layout;
@@ -161,26 +161,26 @@ public class ImportExport {
 	**/
 	public void panacondaLayout(GraphModel graphModel) {
 		
-		YifanHuMultiLevel yfumulti=new YifanHuMultiLevel();
+		//YifanHuMultiLevel yfumulti=new YifanHuMultiLevel();
 		//Layout firstlayout = yfumulti.buildLayout();
 		
 		
-		//MultiLevelLayout yfumulti = new MultiLevelLayout();
+		YifanHuMultiLevel yfumulti = new YifanHuMultiLevel();
 		MaximalMatchingCoarsening coarsening=new MaximalMatchingCoarsening();
-		MultiSpecial firstlayout=new MultiSpecial(yfumulti, coarsening);
+		MultiLevelLayout firstlayout=new MultiLevelLayout(yfumulti, coarsening);
 		firstlayout.setGraphModel(graphModel);
 		firstlayout.resetPropertiesValues();
-		firstlayout.setGraphModel(graphModel);
-		//firstlayout.setQuadTreeMaxLevel(20);
-		//firstlayout.setBarnesHutTheta(1.2f);
-		//firstlayout.setMinSize(3);
-		//firstlayout.setMinCoarseningRate(0.99d);
-		//firstlayout.setStepRatio(0.97f);
-		//firstlayout.setOptimalDistance(100f);
-		//LayoutProperty stuff[] = firstlayout.getProperties();
-		firstlayout.initAlgo();
-		firstlayout.goAlgo();
-		firstlayout.endAlgo();
+		//firstlayout.setGraphModel(graphModel);
+		firstlayout.setQuadTreeMaxLevel(20);
+		firstlayout.setBarnesHutTheta(1.2f);
+		firstlayout.setMinSize(3);
+		firstlayout.setMinCoarseningRate(0.99d);
+		firstlayout.setStepRatio(0.97f);
+		firstlayout.setOptimalDistance(100f);
+		LayoutProperty stuff[] = firstlayout.getProperties();
+		//firstlayout.initAlgo();
+		//firstlayout.goAlgo();
+		//firstlayout.endAlgo();
 		
 		
 		/*ForceAtlas2 secondlayout= new ForceAtlas2(null);
@@ -192,13 +192,13 @@ public class ImportExport {
 		secondlayout.setGravity(1.0);
 		//unknown how to set tolerance
 		secondlayout.setBarnesHutOptimize(true);
-		secondlayout.setBarnesHutTheta(1.2);
-		AutoLayout autolayout = new AutoLayout(5, TimeUnit.SECONDS);
+		secondlayout.setBarnesHutTheta(1.2);*/
+		AutoLayout autolayout = new AutoLayout(30, TimeUnit.SECONDS);
 		autolayout.setGraphModel(graphModel);
-		//autolayout.addLayout(firstlayout, 0.66f);
-		autolayout.addLayout(secondlayout, 1.0f);
+		autolayout.addLayout(firstlayout, 1f);
+		//autolayout.addLayout(secondlayout, 1.0f);
 		autolayout.execute();
-		secondlayout.endAlgo();*/
+		firstlayout.endAlgo();
 		
 		
 		

@@ -234,9 +234,9 @@ public class ImportExport {
 		thirdlayout.resetPropertiesValues();
 		thirdlayout.setRelativeStrength(.90f);
 		thirdlayout.setOptimalDistance(200f);
-		thirdlayout.setInitialStep(20.0f);
+		thirdlayout.setInitialStep(40.0f);
 		thirdlayout.setStepRatio(0.95f);
-		thirdlayout.setQuadTreeMaxLevel(10);
+		thirdlayout.setQuadTreeMaxLevel(30);
 		thirdlayout.setBarnesHutTheta(1.2f);
 		
 		

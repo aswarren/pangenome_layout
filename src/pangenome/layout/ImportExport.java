@@ -7,12 +7,15 @@ import java.io.File;
 //import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringWriter;
 //import java.io.StringWriter;
 import java.util.concurrent.TimeUnit;
 
 import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.GraphModel;
 import org.gephi.io.exporter.api.ExportController;
+import org.gephi.io.exporter.spi.CharacterExporter;
+import org.gephi.io.exporter.spi.GraphExporter;
 //import org.gephi.io.exporter.spi.CharacterExporter;
 //import org.gephi.io.exporter.spi.Exporter;
 //import org.gephi.io.exporter.spi.GraphExporter;
@@ -20,6 +23,7 @@ import org.gephi.io.importer.api.Container;
 import org.gephi.io.importer.api.ContainerLoader;
 import org.gephi.io.importer.api.EdgeDefault;
 import org.gephi.io.importer.api.ImportController;
+import org.gephi.io.importer.spi.FileImporter;
 import org.gephi.io.processor.plugin.DefaultProcessor;
 //import org.gephi.layout.plugin.force.StepDisplacement;
 import org.gephi.layout.plugin.AutoLayout;
@@ -38,6 +42,7 @@ import org.gephi.layout.spi.LayoutProperty;
 import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
+
 
 //import com.itextpdf.text.PageSize;
 
@@ -62,10 +67,12 @@ public class ImportExport {
 		Container container;
 		try {
 
-			File file=new File(fileName);
+			//File file=new File(fileName);
 
 			// this.testFile(file);
-			container = importController.importFile(file);
+			//container = importController.importFile(file);
+			FileImporter fileImporter = importController.getFileImporter(".gexf");
+			container = importController.importFile(System.in, fileImporter);
 			
 			if (container == null) {
 				System.out.println("container is null");
@@ -92,18 +99,27 @@ public class ImportExport {
 
 		//run YifanMultiLevel and ForceAtlas2
 		panacondaLayout(graphModel);
+		
+		
 
-		String output_file=fileName.replace(".gexf", ".layout.gexf");
+		//String output_file="test.layout.gexf";
 
+		
+		
 		// Export full graph
 		ExportController ec = Lookup.getDefault()
 				.lookup(ExportController.class);
-		try {
-			ec.exportFile(new File(output_file));
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			return;
-		}
+		GraphExporter exporter = (GraphExporter) ec.getExporter("gexf"); 
+		//try {
+			StringWriter stringWriter = new StringWriter();
+			ec.exportWriter(stringWriter, (CharacterExporter) exporter);
+			System.out.println(stringWriter.toString());
+			//ec.exportStream(System.out, exporter);
+			//ec.exportFile(new File(output_file));
+		//} catch (IOException ex) {
+			//ex.printStackTrace();
+		//	return;
+		//}
 		
 		/*
 
@@ -131,12 +147,13 @@ public class ImportExport {
 	}
 
 	public static void main(String[] args) {
-		if(args.length<1){
-			System.out.println(">java -jar gexf_layout.jar example.gexf");
-			System.exit(0);
-		}
+		//if(args.length<1){
+		//	System.out.println(">java -jar gexf_layout.jar example.gexf");
+		//	System.exit(0);
+		//}
 		ImportExport run = new ImportExport();
-		run.script((String)args[0]);
+		//run.script((String)args[0]);
+		run.script(null);
 
 	}
 	

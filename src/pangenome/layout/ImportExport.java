@@ -7,36 +7,35 @@ import java.io.File;
 //import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringWriter;
 //import java.io.StringWriter;
 import java.util.concurrent.TimeUnit;
 
 import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.GraphModel;
 import org.gephi.io.exporter.api.ExportController;
+import org.gephi.io.exporter.spi.CharacterExporter;
+import org.gephi.io.exporter.spi.GraphExporter;
 //import org.gephi.io.exporter.spi.CharacterExporter;
 //import org.gephi.io.exporter.spi.Exporter;
 //import org.gephi.io.exporter.spi.GraphExporter;
 import org.gephi.io.importer.api.Container;
 import org.gephi.io.importer.api.ContainerLoader;
-//import org.gephi.io.importer.api.EdgeDefault;
+import org.gephi.io.importer.api.EdgeDefault;
 import org.gephi.io.importer.api.ImportController;
+import org.gephi.io.importer.spi.FileImporter;
 import org.gephi.io.processor.plugin.DefaultProcessor;
 //import org.gephi.layout.plugin.force.StepDisplacement;
 import org.gephi.layout.plugin.AutoLayout;
-//import org.gephi.layout.plugin.force.yifanHu.YifanHu;
-//import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
+import org.gephi.layout.plugin.force.yifanHu.YifanHu;
+import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder;
-import org.gephi.layout.plugin.openord.OpenOrdLayout;
-import org.gephi.layout.plugin.openord.OpenOrdLayoutBuilder;
-import org.gephi.layout.plugin.force.yifanHu.YifanHuProportional;
-import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
-
-//import org.gephi.layout.plugin.multilevel.MaximalMatchingCoarsening;
-//import org.gephi.layout.plugin.multilevel.MultiLevelLayout;
-
-//import org.gephi.layout.plugin.multilevel.MultiLevelLayout;
-//import org.gephi.layout.plugin.multilevel.YifanHuMultiLevel;
+import org.gephi.layout.plugin.multilevel.MaximalMatchingCoarsening;
+import org.gephi.layout.plugin.multilevel.MultiLevelLayout;
+import pangenome.MultiSpecial;
+import org.gephi.layout.plugin.multilevel.MultiLevelLayout;
+import org.gephi.layout.plugin.multilevel.YifanHuMultiLevel;
 import org.gephi.layout.spi.Layout;
 import org.gephi.layout.spi.LayoutProperty;
 //import org.gephi.layout.spi.LayoutBuilder;
@@ -44,7 +43,6 @@ import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
 
-//import pangenome.MultiSpecial;
 
 //import com.itextpdf.text.PageSize;
 
@@ -69,10 +67,12 @@ public class ImportExport {
 		Container container;
 		try {
 
-			File file=new File(fileName);
+			//File file=new File(fileName);
 
 			// this.testFile(file);
-			container = importController.importFile(file);
+			//container = importController.importFile(file);
+			FileImporter fileImporter = importController.getFileImporter(".gexf");
+			container = importController.importFile(System.in, fileImporter);
 			
 			if (container == null) {
 				System.out.println("container is null");
@@ -80,9 +80,9 @@ public class ImportExport {
 			}
 			ContainerLoader loader = container.getLoader();
 
-			//loader.setEdgeDefault(EdgeDefault.UNDIRECTED); // Force DIRECTED
+			loader.setEdgeDefault(EdgeDefault.UNDIRECTED); // Force DIRECTED
 
-			//container.setAllowAutoNode(true); // Don't create missing nodes
+			container.setAllowAutoNode(true); // Don't create missing nodes
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -95,22 +95,31 @@ public class ImportExport {
 
 		// Get graph model of current workspace
 		GraphModel graphModel = Lookup.getDefault()
-				.lookup(GraphController.class).getGraphModel();
+				.lookup(GraphController.class).getModel();
 
 		//run YifanMultiLevel and ForceAtlas2
 		panacondaLayout(graphModel);
+		
+		
 
-		String output_file=fileName.replace(".gexf", ".layout.gexf");
+		//String output_file="test.layout.gexf";
 
+		
+		
 		// Export full graph
 		ExportController ec = Lookup.getDefault()
 				.lookup(ExportController.class);
-		try {
-			ec.exportFile(new File(output_file));
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			return;
-		}
+		GraphExporter exporter = (GraphExporter) ec.getExporter("gexf"); 
+		//try {
+			StringWriter stringWriter = new StringWriter();
+			ec.exportWriter(stringWriter, (CharacterExporter) exporter);
+			System.out.println(stringWriter.toString());
+			//ec.exportStream(System.out, exporter);
+			//ec.exportFile(new File(output_file));
+		//} catch (IOException ex) {
+			//ex.printStackTrace();
+		//	return;
+		//}
 		
 		/*
 
@@ -138,12 +147,13 @@ public class ImportExport {
 	}
 
 	public static void main(String[] args) {
-		if(args.length<1){
-			System.out.println(">java -jar gexf_layout.jar example.gexf");
-			System.exit(0);
-		}
+		//if(args.length<1){
+		//	System.out.println(">java -jar gexf_layout.jar example.gexf");
+		//	System.exit(0);
+		//}
 		ImportExport run = new ImportExport();
-		run.script((String)args[0]);
+		//run.script((String)args[0]);
+		run.script(null);
 
 	}
 	
@@ -172,87 +182,70 @@ public class ImportExport {
 		//Layout firstlayout = yfumulti.buildLayout();
 		
 		
-		OpenOrdLayout firstlayout = new OpenOrdLayout(null);
+		YifanHuMultiLevel yfumulti = new YifanHuMultiLevel();
+		MaximalMatchingCoarsening coarsening=new MaximalMatchingCoarsening();
+		MultiLevelLayout firstlayout=new MultiLevelLayout(yfumulti, coarsening);
 		firstlayout.setGraphModel(graphModel);
 		firstlayout.resetPropertiesValues();
-		firstlayout.setLiquidStage(25);
-		firstlayout.setExpansionStage(25);
-		firstlayout.setCooldownStage(25);
-		firstlayout.setCrunchStage(10);
-		firstlayout.setSimmerStage(15);
-		firstlayout.setEdgeCut(0.8f);
-		firstlayout.setNumThreads(7);
-		firstlayout.setNumIterations(750);
-		firstlayout.setRealTime(0.2f);
-		firstlayout.setRandSeed(4354541170290400326l);
-		
-		
+		//firstlayout.setGraphModel(graphModel);
+		firstlayout.setQuadTreeMaxLevel(20);
+		firstlayout.setBarnesHutTheta(1.2f);
+		firstlayout.setMinSize(3);
+		firstlayout.setMinCoarseningRate(0.75d);
+		firstlayout.setStepRatio(0.97f);
+		firstlayout.setOptimalDistance(100f);
+		LayoutProperty stuff[] = firstlayout.getProperties();
 		//firstlayout.initAlgo();
 		//firstlayout.goAlgo();
 		//firstlayout.endAlgo();
 		
-		//MultiLevelLayout yfumulti = new MultiLevelLayout();
-		//MaximalMatchingCoarsening coarsening=new MaximalMatchingCoarsening();
-		//MultiSpecial firstlayout=new MultiSpecial(yfumulti, coarsening);
-		//firstlayout.setGraphModel(graphModel);
-		//firstlayout.resetPropertiesValues();
-		//firstlayout.setGraphModel(graphModel);
-		//firstlayout.setQuadTreeMaxLevel(20);
-		//firstlayout.setBarnesHutTheta(1.2f);
-		//firstlayout.setMinSize(3);
-		//firstlayout.setMinCoarseningRate(0.99d);
-		//firstlayout.setStepRatio(0.97f);
-		//firstlayout.setOptimalDistance(100f);
-		//LayoutProperty stuff[] = firstlayout.getProperties();
-		//firstlayout.initAlgo();
-		//int c = 1;
-		//while (c <= 20) {
-		//	firstlayout.goAlgo();
-		//	firstlayout.endAlgo();
-		//	c++;
-		//}
-		
 		
 		ForceAtlas2 secondlayout= new ForceAtlas2(null);
-		
-		//unknown how to prevent overlap
 		secondlayout.setGraphModel(graphModel);
 		secondlayout.resetPropertiesValues();
-		secondlayout.setThreadsCount(7);
-		secondlayout.setEdgeWeightInfluence(1.2);
+		secondlayout.setThreadsCount(4);
+		secondlayout.setEdgeWeightInfluence(1.0);
 		secondlayout.setScalingRatio(2.0);
 		secondlayout.setGravity(1.0);
-		
-		//unknown how to set tolerance
+		secondlayout.setJitterTolerance(1d);
 		secondlayout.setBarnesHutOptimize(true);
 		secondlayout.setBarnesHutTheta(1.2);
-		secondlayout.setJitterTolerance(1d);
 		
-		YifanHuProportional layout3builder = new YifanHuProportional();
-		YifanHuLayout thirdlayout = layout3builder.buildLayout();
+		ForceAtlas2 thirdlayout= new ForceAtlas2(null);
 		thirdlayout.setGraphModel(graphModel);
 		thirdlayout.resetPropertiesValues();
-		thirdlayout.setRelativeStrength(.90f);
-		thirdlayout.setOptimalDistance(200f);
-		thirdlayout.setInitialStep(40.0f);
-		thirdlayout.setStepRatio(0.95f);
-		thirdlayout.setQuadTreeMaxLevel(30);
-		thirdlayout.setBarnesHutTheta(1.2f);
+		//prevent overlap
+		thirdlayout.setAdjustSizes(true);
+		thirdlayout.setThreadsCount(4);
+		thirdlayout.setEdgeWeightInfluence(1.0);
+		thirdlayout.setScalingRatio(2.0);
+		thirdlayout.setGravity(1.0);
+		thirdlayout.setJitterTolerance(1d);
+		thirdlayout.setBarnesHutOptimize(false);
+		thirdlayout.setBarnesHutTheta(1.2);
 		
 		
-		AutoLayout autolayout1 = new AutoLayout(30, TimeUnit.SECONDS);
-		autolayout1.setGraphModel(graphModel);
-		autolayout1.addLayout(firstlayout, 1f);
+		AutoLayout autolayout = new AutoLayout(30, TimeUnit.SECONDS);
+		autolayout.setGraphModel(graphModel);
+		autolayout.addLayout(firstlayout, 1f);
+		//autolayout.addLayout(secondlayout, 1.0f);
+		autolayout.execute();
+		firstlayout.endAlgo();
 		
-		
-		AutoLayout autolayout2 = new AutoLayout(40, TimeUnit.SECONDS);
+		AutoLayout autolayout2 = new AutoLayout(6, TimeUnit.SECONDS);
 		autolayout2.setGraphModel(graphModel);
-		autolayout2.addLayout(secondlayout, .8f);
-		autolayout2.addLayout(thirdlayout, .2f);
-		autolayout1.execute();
+		autolayout2.addLayout(secondlayout, 1f);
 		autolayout2.execute();
 		secondlayout.endAlgo();
+		
+		
+		AutoLayout autolayout3 = new AutoLayout(4, TimeUnit.SECONDS);
+		autolayout3.setGraphModel(graphModel);
+		autolayout3.addLayout(thirdlayout, 1f);
+		autolayout3.execute();
 		thirdlayout.endAlgo();
+		
+		
 	
 		
 		/*if (firstlayout.canAlgo()) {

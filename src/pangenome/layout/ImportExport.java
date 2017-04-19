@@ -7,6 +7,8 @@ import java.io.File;
 //import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.StringWriter;
 //import java.io.StringWriter;
 import java.util.concurrent.TimeUnit;
@@ -65,41 +67,48 @@ public class ImportExport {
 
 		// Import file
 		Container container;
-		try {
-
-			//File file=new File(fileName);
-
-			// this.testFile(file);
-			//container = importController.importFile(file);
-			FileImporter fileImporter = importController.getFileImporter(".gexf");
-			container = importController.importFile(System.in, fileImporter);
-			
-			if (container == null) {
-				System.out.println("container is null");
-				return ;
-			}
-			ContainerLoader loader = container.getLoader();
-
-			loader.setEdgeDefault(EdgeDefault.UNDIRECTED); // Force DIRECTED
-
-			container.setAllowAutoNode(true); // Don't create missing nodes
-
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			
-			return;
-		}
-
-		// Append imported data to GraphAPI
-		importController.process(container, new DefaultProcessor(), workspace);
-
-		// Get graph model of current workspace
-		GraphModel graphModel = Lookup.getDefault()
-				.lookup(GraphController.class).getModel();
-
-		//run YifanMultiLevel and ForceAtlas2
-		panacondaLayout(graphModel);
 		
+		//Gephi toolkit writes to stdout for processing call. can't have that.
+		PrintStream out = System.out;
+		System.setOut(System.err);
+		try {
+			try {
+
+				//File file=new File(fileName);
+
+				// this.testFile(file);
+				//container = importController.importFile(file);
+				FileImporter fileImporter = importController.getFileImporter(".gexf");
+				container = importController.importFile(System.in, fileImporter);
+				
+				if (container == null) {
+					System.err.println("container is null");
+					return ;
+				}
+				ContainerLoader loader = container.getLoader();
+
+				loader.setEdgeDefault(EdgeDefault.UNDIRECTED); // Force DIRECTED
+
+				container.setAllowAutoNode(true); // Don't create missing nodes
+
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				
+				return;
+			}
+
+			// Append imported data to GraphAPI
+			importController.process(container, new DefaultProcessor(), workspace);
+
+			// Get graph model of current workspace
+			GraphModel graphModel = Lookup.getDefault()
+					.lookup(GraphController.class).getModel();
+
+			//run YifanMultiLevel and ForceAtlas2
+			panacondaLayout(graphModel);
+		} finally {
+		    System.setOut(out);
+		}
 		
 
 		//String output_file="test.layout.gexf";

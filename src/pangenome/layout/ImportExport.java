@@ -1,4 +1,4 @@
-package pangenome.layout;
+package layout;
 
 import java.io.BufferedReader;
 //import java.io.ByteArrayOutputStream;
@@ -35,7 +35,6 @@ import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder;
 import org.gephi.layout.plugin.multilevel.MaximalMatchingCoarsening;
 import org.gephi.layout.plugin.multilevel.MultiLevelLayout;
-import pangenome.MultiSpecial;
 import org.gephi.layout.plugin.multilevel.MultiLevelLayout;
 import org.gephi.layout.plugin.multilevel.YifanHuMultiLevel;
 import org.gephi.layout.spi.Layout;
@@ -74,11 +73,12 @@ public class ImportExport {
 		try {
 			try {
 
-				//File file=new File(fileName);
+				//File file=new File("/Users/anwarren/projects/git_repos/cid_work/figfam_assembly/patric_example/patric_test.gexf");
 
-				// this.testFile(file);
+				//this.testFile(file);
 				//container = importController.importFile(file);
 				FileImporter fileImporter = importController.getFileImporter(".gexf");
+				//container = importController.importFile(file, fileImporter);
 				container = importController.importFile(System.in, fileImporter);
 				
 				if (container == null) {
@@ -213,7 +213,7 @@ public class ImportExport {
 		secondlayout.setGraphModel(graphModel);
 		secondlayout.resetPropertiesValues();
 		secondlayout.setThreadsCount(4);
-		secondlayout.setEdgeWeightInfluence(0.3);
+		secondlayout.setEdgeWeightInfluence(0.1);
 		secondlayout.setScalingRatio(2.0);
 		secondlayout.setGravity(1.0);
 		secondlayout.setJitterTolerance(1d);
@@ -243,14 +243,19 @@ public class ImportExport {
 		
 		AutoLayout autolayout2 = new AutoLayout(6, TimeUnit.SECONDS);
 		autolayout2.setGraphModel(graphModel);
-		autolayout2.addLayout(secondlayout, 1f);
+		//autolayout2.addLayout(secondlayout, 1f);
+		AutoLayout.DynamicProperty edgeInfluence =AutoLayout.createDynamicProperty("forceAtlas2.edgeWeightInfluence.name", 0.3, 0f);
+		autolayout2.addLayout(secondlayout, 1f, new AutoLayout.DynamicProperty[]{edgeInfluence});
 		autolayout2.execute();
 		secondlayout.endAlgo();
 		
 		
+		
 		AutoLayout autolayout3 = new AutoLayout(3, TimeUnit.SECONDS);
 		autolayout3.setGraphModel(graphModel);
-		autolayout3.addLayout(thirdlayout, 1f);
+		AutoLayout.DynamicProperty adjustBySizeProperty = AutoLayout.createDynamicProperty("forceAtlas2.adjustSizes.name", Boolean.TRUE, 0f);
+		AutoLayout.DynamicProperty barnesHut = AutoLayout.createDynamicProperty("forceAtlas2.barnesHutOptimization.name", Boolean.FALSE, 0f);
+		autolayout3.addLayout(thirdlayout, 1f, new AutoLayout.DynamicProperty[]{adjustBySizeProperty, barnesHut});
 		autolayout3.execute();
 		thirdlayout.endAlgo();
 		

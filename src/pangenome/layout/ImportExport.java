@@ -244,7 +244,7 @@ public class ImportExport {
 		AutoLayout autolayout2 = new AutoLayout(6, TimeUnit.SECONDS);
 		autolayout2.setGraphModel(graphModel);
 		//autolayout2.addLayout(secondlayout, 1f);
-		AutoLayout.DynamicProperty edgeInfluence =AutoLayout.createDynamicProperty("forceAtlas2.edgeWeightInfluence.name", 0.3, 0f);
+		AutoLayout.DynamicProperty edgeInfluence =AutoLayout.createDynamicProperty("forceAtlas2.edgeWeightInfluence.name", new Double(0.1), 0f);
 		autolayout2.addLayout(secondlayout, 1f, new AutoLayout.DynamicProperty[]{edgeInfluence});
 		autolayout2.execute();
 		secondlayout.endAlgo();
@@ -255,7 +255,7 @@ public class ImportExport {
 		autolayout3.setGraphModel(graphModel);
 		AutoLayout.DynamicProperty adjustBySizeProperty = AutoLayout.createDynamicProperty("forceAtlas2.adjustSizes.name", Boolean.TRUE, 0f);
 		AutoLayout.DynamicProperty barnesHut = AutoLayout.createDynamicProperty("forceAtlas2.barnesHutOptimization.name", Boolean.FALSE, 0f);
-		autolayout3.addLayout(thirdlayout, 1f, new AutoLayout.DynamicProperty[]{adjustBySizeProperty, barnesHut});
+		autolayout3.addLayout(thirdlayout, 1f, new AutoLayout.DynamicProperty[]{adjustBySizeProperty, barnesHut, edgeInfluence});
 		autolayout3.execute();
 		thirdlayout.endAlgo();
 		

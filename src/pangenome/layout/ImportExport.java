@@ -213,7 +213,7 @@ public class ImportExport {
 		secondlayout.setGraphModel(graphModel);
 		secondlayout.resetPropertiesValues();
 		secondlayout.setThreadsCount(4);
-		secondlayout.setEdgeWeightInfluence(1.0);
+		secondlayout.setEdgeWeightInfluence(0.3);
 		secondlayout.setScalingRatio(2.0);
 		secondlayout.setGravity(1.0);
 		secondlayout.setJitterTolerance(1d);
@@ -234,7 +234,7 @@ public class ImportExport {
 		thirdlayout.setBarnesHutTheta(1.2);
 		
 		
-		AutoLayout autolayout = new AutoLayout(30, TimeUnit.SECONDS);
+		AutoLayout autolayout = new AutoLayout(12, TimeUnit.SECONDS);
 		autolayout.setGraphModel(graphModel);
 		autolayout.addLayout(firstlayout, 1f);
 		//autolayout.addLayout(secondlayout, 1.0f);
@@ -248,7 +248,7 @@ public class ImportExport {
 		secondlayout.endAlgo();
 		
 		
-		AutoLayout autolayout3 = new AutoLayout(4, TimeUnit.SECONDS);
+		AutoLayout autolayout3 = new AutoLayout(3, TimeUnit.SECONDS);
 		autolayout3.setGraphModel(graphModel);
 		autolayout3.addLayout(thirdlayout, 1f);
 		autolayout3.execute();

@@ -238,7 +238,11 @@ public class ImportExport {
 		autolayout.setGraphModel(graphModel);
 		autolayout.addLayout(firstlayout, 1f);
 		//autolayout.addLayout(secondlayout, 1.0f);
-		autolayout.execute();
+        try{
+		    autolayout.execute();
+        } catch (NullPointerException e){
+            System.err.println("Layout converged early. Ignoring Gephi Toolkit NPE...");
+        }
 		firstlayout.endAlgo();
 		
 		AutoLayout autolayout2 = new AutoLayout(6, TimeUnit.SECONDS);
